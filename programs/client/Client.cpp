@@ -520,6 +520,8 @@ private:
                     continue;
                 case Protocol::Server::Log:
                     continue;
+                case Protocol::Server::ProfileEvents:
+                    continue;
 
                 case Protocol::Server::Exception:
                     packet.exception->rethrow();
@@ -2243,6 +2245,10 @@ private:
                 onEndOfStream();
                 return false;
 
+            case Protocol::Server::ProfileEvents:
+                onProfileEvent(packet.block);
+                return true;
+
             default:
                 throw Exception(
                     ErrorCodes::UNKNOWN_PACKET_FROM_SERVER, "Unknown packet {} from server {}", packet.type, connection->getDescription());
@@ -2504,6 +2510,12 @@ private:
 
         if (need_render_progress)
             progress_indication.writeProgress();
+    }
+
+
+    void onProfileEvent(Block & )
+    {
+
     }
 
 
