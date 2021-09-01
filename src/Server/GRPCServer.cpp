@@ -593,6 +593,7 @@ namespace
         void addExtremesToResult(const Block & extremes);
         void addProfileInfoToResult(const BlockStreamProfileInfo & info);
         void addLogsToResult();
+        void addProfileEventsToResult();
         void sendResult();
         void throwIfFailedToSendResult();
         void sendException(const Exception & exception);
@@ -1118,6 +1119,7 @@ namespace
             if (after_send_progress.elapsedMicroseconds() >= interactive_delay)
             {
                 addProgressToResult();
+                addProfileEventsToResult();
                 after_send_progress.restart();
             }
 
@@ -1184,6 +1186,7 @@ namespace
             if (after_send_progress.elapsedMicroseconds() >= interactive_delay)
             {
                 addProgressToResult();
+                addProfileEventsToResult();
                 after_send_progress.restart();
             }
 
@@ -1213,6 +1216,7 @@ namespace
         finalize = true;
         io.onFinish();
         addProgressToResult();
+        addProfileEventsToResult();
         query_scope->logPeakMemoryUsage();
         addLogsToResult();
         sendResult();
@@ -1474,6 +1478,11 @@ namespace
                 log_entry.set_text(text.data, text.size);
             }
         }
+    }
+
+    void Call::addProfileEventsToResult()
+    {
+
     }
 
     void Call::sendResult()
