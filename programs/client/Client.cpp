@@ -1,8 +1,10 @@
+#include <cstddef>
 #include <string>
 
 #include "Common/MemoryTracker.h"
 #include "Columns/ColumnsNumber.h"
 #include "ConnectionParameters.h"
+#include "Core/Block.h"
 #include "IO/CompressionMethod.h"
 #include "QueryFuzzer.h"
 #include "Suggest.h"
@@ -2513,9 +2515,15 @@ private:
     }
 
 
-    void onProfileEvent(Block & )
+    void onProfileEvent(Block & block)
     {
-
+        if (block.rows() == 0)
+            return;
+        const auto & array_thread_id = typeid_cast<const ColumnUInt64 &>(*block.getByName("thread_id").column).getData();
+        for (size_t i = 0; i < block.rows(); ++i)
+        {
+            progress_indication.addThreadIdToList(array_thread_id[i]);
+        }
     }
 
 
