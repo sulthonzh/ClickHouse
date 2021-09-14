@@ -2,6 +2,7 @@
 #include <string>
 
 #include "Common/MemoryTracker.h"
+#include "Common/ProfileEvents.h"
 #include "Columns/ColumnsNumber.h"
 #include "ConnectionParameters.h"
 #include "Core/Block.h"
@@ -114,6 +115,12 @@ namespace CurrentMetrics
     extern const Metric VersionInteger;
     extern const Metric MemoryTracking;
     extern const Metric MaxDDLEntryID;
+}
+
+namespace ProfileEvents
+{
+    extern const Event UserTimeMicroseconds;
+    extern const Event SystemTimeMicroseconds;
 }
 
 namespace fs = std::filesystem;
@@ -2520,9 +2527,27 @@ private:
         if (block.rows() == 0)
             return;
         const auto & array_thread_id = typeid_cast<const ColumnUInt64 &>(*block.getByName("thread_id").column).getData();
+        const auto & names = typeid_cast<const ColumnString &>(*block.getByName("name").column);
+        const auto & array_values = typeid_cast<const ColumnUInt64 &>(*block.getByName("value").column).getData();
+
+        auto const * user_time_name = ProfileEvents::getName(ProfileEvents::UserTimeMicroseconds);
+        auto const * system_time_name = ProfileEvents::getName(ProfileEvents::SystemTimeMicroseconds);
+
+
         for (size_t i = 0; i < block.rows(); ++i)
         {
-            progress_indication.addThreadIdToList(array_thread_id[i]);
+            auto thread_id = array_thread_id[i];
+            progress_indication.addThreadIdToList(thread_id);
+            auto event_name = names.getDataAt(i);
+            auto value = array_values[i];
+            if (event_name == user_time_name)
+            {
+                progress_indication.updateThreadUserTime(thread_id, value);
+            }
+            else if (event_name == system_time_name)
+            {
+                progress_indication.updateThreadSystemTime(thread_id, value);
+            }
         }
     }
 
