@@ -1,6 +1,5 @@
 #include "ProgressIndication.h"
 #include <numeric>
-#include <math>
 #include <IO/WriteBufferFromFileDescriptor.h>
 #include "common/types.h"
 #include <Common/TerminalSize.h>
