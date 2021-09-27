@@ -7,7 +7,7 @@ CURDIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 
 function insert1()
 {
-    url="${CLICKHOUSE_URL}&async_insert_mode=1&wait_for_async_insert=0"
+    url="${CLICKHOUSE_URL}&async_insert=1&wait_for_async_insert=0"
     while true; do
         ${CLICKHOUSE_CURL} -sS "$url" -d 'INSERT INTO async_inserts FORMAT CSV
 1,"a"
@@ -18,7 +18,7 @@ function insert1()
 
 function insert2()
 {
-    url="${CLICKHOUSE_URL}&async_insert_mode=1&wait_for_async_insert=0"
+    url="${CLICKHOUSE_URL}&async_insert=1&wait_for_async_insert=0"
     while true; do
         ${CLICKHOUSE_CURL} -sS "$url" -d 'INSERT INTO async_inserts FORMAT JSONEachRow {"id": 5, "s": "e"} {"id": 6, "s": "f"}'
     done
@@ -55,7 +55,7 @@ export -f insert1
 export -f insert2
 export -f select1
 export -f select2
-export -f truncate1
+# export -f truncate1
 
 for _ in {1..5}; do
     timeout $TIMEOUT bash -c insert1 &
@@ -64,7 +64,7 @@ done
 
 timeout $TIMEOUT bash -c select1 &
 timeout $TIMEOUT bash -c select2 &
-timeout $TIMEOUT bash -c truncate1 &
+# timeout $TIMEOUT bash -c truncate1 &
 
 wait
 echo "OK"
