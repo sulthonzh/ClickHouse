@@ -161,3 +161,10 @@ website/package-lock.json
 *.lib
 *.obj
 /**/lib*.so
+node_modules/
+dist/
+.env
+__pycache__/
+.venv/
+.egg-info/
+.mypy_cache/
